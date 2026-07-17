@@ -4,12 +4,17 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.18.5",
-    "fastapi[standard]>=0.139.0",
+    "asyncpg>=0.31.0",
+    "fastapi[standard]==0.139.0",
     "pgvector>=0.5.0",
     "pydantic-settings>=2.14.2",
     "sqlalchemy[asyncio]>=2.0.51",
 ]
 
+[tool.fastapi]
+# https://fastapi.tiangolo.com/fastapi-cli/#configure-the-app-entrypoint-in-pyproject-toml
+
+entrypoint = "src.main:app"
 
 [tool.alembic]
 
