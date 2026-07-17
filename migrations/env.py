@@ -1,17 +1,15 @@
 import asyncio
 from logging.config import fileConfig
 
+import pgvector
 import pgvector.sqlalchemy
+from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from alembic import context
-
-from models import Base
-from config import get_settings
-
-import pgvector
+from src.config import get_settings
+from src.models import Base
 
 settings = get_settings()
 
@@ -32,7 +30,8 @@ target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
-config.get_main_option("sqlalchemy.url", settings.database_url)
+# https://github.com/sqlalchemy/alembic/discussions/1043
+config.set_main_option("sqlalchemy.url", settings.database_url)
 # ... etc.
 
 
