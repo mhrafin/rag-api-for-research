@@ -18,7 +18,7 @@ async def init_db():
         await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
 
 
-def get_db():
+async def get_db():
     """A generator that creates a fresh session. Finally the session is closed after a request is handled.
 
     Yields:
@@ -28,4 +28,4 @@ def get_db():
     try:
         yield db
     finally:
-        db.aclose()
+        await db.aclose()
