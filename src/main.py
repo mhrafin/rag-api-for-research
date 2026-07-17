@@ -4,6 +4,7 @@ from fastapi import Depends, FastAPI
 
 from .auth import verify_api_key
 from .database import init_db
+from .routers import health
 
 
 # https://fastapi.tiangolo.com/advanced/events/#lifespan
@@ -15,6 +16,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(health.router)
 
 
 @app.get("/")
