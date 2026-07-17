@@ -1,9 +1,22 @@
-from fastapi import Depends, FastAPI
-from auth import verify_api_key
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+from fastapi import Depends, FastAPI
+
+from .auth import verify_api_key
+from .database import init_db
+
+
+# https://fastapi.tiangolo.com/advanced/events/#lifespan
+# Its a generator that helps do stuff at the startup of the system and at the shutdown of the system (after yield)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")
-async def root(key: str =  Depends(verify_api_key)):
+async def root(key: str = Depends(verify_api_key)):
     return {"message": "Hello World"}

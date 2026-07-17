@@ -12,6 +12,12 @@ async_engine = create_async_engine(settings.database_url)
 AsyncSession = async_sessionmaker(bind=async_engine)
 
 
+async def init_db():
+    async with async_engine.begin() as conn:
+        # 1. Enable the pgvector extension in PostgreSQL
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+
+
 def get_db():
     """A generator that creates a fresh session. Finally the session is closed after a request is handled.
 
