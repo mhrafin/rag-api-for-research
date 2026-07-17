@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from venv import logger
 
 from fastapi import Depends, FastAPI
 
@@ -11,7 +12,11 @@ from .routers import health
 # Its a generator that helps do stuff at the startup of the system and at the shutdown of the system (after yield)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db()
+    # Without try/except the app crashes if the database is unreachable.
+    try:
+        await init_db()
+    except Exception:
+        logger.warning("Database unavailable at startup — deferring")
     yield
 
 
