@@ -1,0 +1,1 @@
+I selected FastAPI as my framework for this project. FastAPI good here since the whole system is not very heavy crud operations. Rather there are many other moving parts. FastAPI will help handle those parts.

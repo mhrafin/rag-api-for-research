@@ -1,0 +1,1 @@
+For storing relational data I selected PostgreSQL. The reason behind selecting PostgreSQL was pgvector. As this project is a RAG API, it needs to store vector embeddings. And I didn't want to manage another separate vector database for this. There postgresql with pgvector. PostgreSQL will run from a docker container.
