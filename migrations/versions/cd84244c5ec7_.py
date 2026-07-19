@@ -1,8 +1,8 @@
-"""Added document and chunk table
+"""empty message
 
-Revision ID: 685cf0e8bb45
+Revision ID: cd84244c5ec7
 Revises:
-Create Date: 2026-07-17 19:43:19.044276
+Create Date: 2026-07-19 10:16:56.904604
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "685cf0e8bb45"
+revision: str = "cd84244c5ec7"
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -27,14 +27,22 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column(
             "source_type",
-            sa.Enum("FILE", "URL", name="docsourcetypeenum"),
+            sa.Enum("FILE", "URL", name="doc_source_type_enum"),
             nullable=False,
         ),
         sa.Column("source_reference", sa.String(), nullable=False),
-        sa.Column("title", sa.String(), nullable=False),
+        sa.Column("content", sa.Text(), nullable=True),
         sa.Column(
             "status",
-            sa.Enum("QUEUED", "PROCESSING", "READY", "FAILED", name="docstatusenum"),
+            sa.Enum(
+                "QUEUED",
+                "PROCESSING",
+                "CHUNKED",
+                "READY",
+                "FAILED",
+                name="doc_status_enum",
+            ),
+            server_default="QUEUED",
             nullable=False,
         ),
         sa.Column(
@@ -49,6 +57,7 @@ def upgrade() -> None:
         "chunk_table",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("document_id", sa.Integer(), nullable=False),
+        sa.Column("chunk_uuid", sa.Uuid(), nullable=False),
         sa.Column("chunk_index", sa.Integer(), nullable=False),
         sa.Column("content", sa.String(), nullable=False),
         sa.Column("token_count", sa.Integer(), nullable=True),
@@ -62,10 +71,13 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.ForeignKeyConstraint(
-            ["document_id"],
-            ["document_table.id"],
+            ["document_id"], ["document_table.id"], ondelete="CASCADE"
         ),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("chunk_uuid"),
+        sa.UniqueConstraint(
+            "document_id", "chunk_index", name="uq_document_chunk_index"
+        ),
     )
     # ### end Alembic commands ###
 
