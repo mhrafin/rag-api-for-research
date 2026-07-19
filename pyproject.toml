@@ -6,9 +6,13 @@ dependencies = [
     "alembic>=1.18.5",
     "asyncpg>=0.31.0",
     "fastapi[standard]==0.139.0",
+    "kreuzberg>=4.10.2",
+    "langchain-text-splitters>=1.1.2",
     "pgvector>=0.5.0",
     "pydantic-settings>=2.14.2",
+    "python-multipart>=0.0.32",
     "sqlalchemy[asyncio]>=2.0.51",
+    "tiktoken>=0.13.0",
 ]
 
 [tool.fastapi]
