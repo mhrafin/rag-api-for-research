@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     database_url: str
     api_key: str
     embedding_dim: int
+    openai_api_key: str
+    temp_dir: str = "temp/"
+    cost_per_million: float = 0.02
 
 
 # First time calling this will create the settings instance. All the other call coming after it, will get the cached instance.
