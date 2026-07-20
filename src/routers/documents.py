@@ -6,7 +6,6 @@ import tiktoken
 from fastapi import APIRouter, BackgroundTasks, Depends, UploadFile, logger
 from fastapi.responses import Response
 from kreuzberg import ExtractionConfig, extract_file
-from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
 )
@@ -19,6 +18,7 @@ from src.auth import verify_api_key
 from src.config import get_settings
 from src.database import get_db
 from src.models import Chunk, Document
+from src.utils.embeddings import embed_text
 
 settings = get_settings()
 
@@ -80,7 +80,7 @@ async def documents(
     await db.refresh(new_doc)
 
     background_tasks.add_task(
-        embedding_pipeline, file_path=file_path, doc_id=new_doc.id
+        doc_process_pipeline, file_path=file_path, doc_id=new_doc.id
     )
     return new_doc
 
@@ -96,7 +96,7 @@ def is_file_valid_format(file_content_type: str):
     return True
 
 
-async def embedding_pipeline(file_path: str, doc_id: int):
+async def doc_process_pipeline(file_path: str, doc_id: int):
     FILE_PATH = file_path
 
     from src.database import AsyncSession
@@ -157,20 +157,9 @@ async def embedding_pipeline(file_path: str, doc_id: int):
         await db.commit()
         await db.refresh(doc)
 
-        # Embedding starts from here
         chunks = [c for c in doc.chunks if c.embedding is None]
-
-        embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-small", api_key=settings.openai_api_key
-        )
-        chunk_contents = []
-        vectors = []
-
-        for i, chunk in enumerate(chunks):
-            chunk_contents.append(chunk.content)
-
-        vectors = embeddings.embed_documents(chunk_contents)
-
+        chunk_contents = [c.content for c in chunks]
+        vectors = await embed_text(chunk_contents, settings)
         for vector, chunk in zip(vectors, chunks):
             chunk.embedding = vector
 
