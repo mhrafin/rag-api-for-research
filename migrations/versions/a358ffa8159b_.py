@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: cd84244c5ec7
+Revision ID: a358ffa8159b
 Revises:
-Create Date: 2026-07-19 10:16:56.904604
+Create Date: 2026-07-20 07:05:53.495484
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "cd84244c5ec7"
+revision: str = "a358ffa8159b"
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -27,7 +27,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column(
             "source_type",
-            sa.Enum("FILE", "URL", name="doc_source_type_enum"),
+            sa.Enum("FILE", "URL", name="docsourcetypeenum"),
             nullable=False,
         ),
         sa.Column("source_reference", sa.String(), nullable=False),
@@ -40,9 +40,8 @@ def upgrade() -> None:
                 "CHUNKED",
                 "READY",
                 "FAILED",
-                name="doc_status_enum",
+                name="docstatusenum",
             ),
-            server_default="QUEUED",
             nullable=False,
         ),
         sa.Column(

@@ -1,6 +1,9 @@
 import asyncio
 from logging.config import fileConfig
 
+# https://github.com/Pogchamp-company/alembic-postgresql-enum
+# Alembic doesn't autogenerate enum changes
+import alembic_postgresql_enum
 import pgvector
 import pgvector.sqlalchemy
 from alembic import context
