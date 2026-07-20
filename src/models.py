@@ -1,13 +1,13 @@
 import enum
 import uuid
 from datetime import datetime
-from typing import List, Literal
+from typing import List
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     TIMESTAMP,
-    Enum,
     ForeignKey,
+    Index,
     Text,
     UniqueConstraint,
     Uuid,
@@ -19,10 +19,19 @@ from .config import get_settings
 
 settings = get_settings()
 
-# Switched to using literal due to alembic not picking up changes. Current way is yet to be tested. https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html#using-python-enum-or-pep-586-literal-types-in-the-type-map
-DocSourceTypeEnum = Literal["FILE", "URL"]
+# https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html#using-python-enum-or-pep-586-literal-types-in-the-type-map
 
-DocStatusEnum = Literal["QUEUED", "PROCESSING", "CHUNKED", "READY", "FAILED"]
+
+class DocSourceTypeEnum(enum.Enum):
+    FILE = "file"
+    URL = "url"
+
+
+class DocStatusEnum(enum.Enum):
+    QUEUED = "queued"
+    CHUNKED = "chunked"
+    PROCESSED = "processed"
+    FAILED = "failed"
 
 
 # This is how its done, https://docs.sqlalchemy.org/en/20/orm/declarative_styles.html
@@ -35,22 +44,17 @@ class Document(Base):
 
     # Types: https://docs.sqlalchemy.org/en/20/core/types.html
     id: Mapped[int] = mapped_column(primary_key=True)
-    source_type: Mapped[DocSourceTypeEnum] = mapped_column(
-        Enum("FILE", "URL", name="doc_source_type_enum")
-    )
+    source_type: Mapped[DocSourceTypeEnum]
     source_reference: Mapped[str]
     content: Mapped[str] = mapped_column(Text, nullable=True)
-    status: Mapped[DocStatusEnum] = mapped_column(
-        Enum(
-            "QUEUED", "PROCESSING", "CHUNKED", "READY", "FAILED", name="doc_status_enum"
-        ),
-        server_default="QUEUED",
-    )
+    status: Mapped[DocStatusEnum]
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
     )
     # https://docs.sqlalchemy.org/en/20/orm/basic_relationships.html#one-to-many
     chunks: Mapped[List["Chunk"]] = relationship(back_populates="document")
+    total_token: Mapped[int] = mapped_column(nullable=True)
+    estimated_cost: Mapped[float] = mapped_column(nullable=True)
 
 
 class Chunk(Base):
@@ -80,3 +84,13 @@ class Chunk(Base):
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), nullable=False, server_default=func.now()
     )
+
+
+# https://github.com/pgvector/pgvector-python#sqlalchemy
+Index(
+    "chunk_embedding_hnsw_index",
+    Chunk.embedding,
+    postgresql_using="hnsw",
+    postgresql_with={"m": 16, "ef_construction": 64},
+    postgresql_ops={"embedding": "vector_l2_ops"},
+)
