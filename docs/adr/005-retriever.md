@@ -1,0 +1,1 @@
+For similiarity search, that is, retriever, I decided not to use LangChain. LangChain's retrievers has their own schema for extracting, chunking, and embedding. And I didn't use those for my specific flow. I opted for using a relational database (PostgreSQL with pgvector). So for similarity search I used pgvector-python package.
