@@ -1,12 +1,12 @@
-# CorpusCompass
+# rag-api-for-research
 
-A RAG API that turns your research paper collection into a citation-backed knowledge base. Upload PDFs, Markdown, or plain text — get answers with inline sources.
+A RAG API that turns your research paper collection into a citation-backed knowledge base. Upload PDFs, Markdown, or plain text. Get answers with inline sources.
 
 <!-- > _Watch a demo_ (screenshot or GIF placeholder) -->
 
 ## Why
 
-Traditional search gives you a pile of documents to read. CorpusCompass gives you answers — pulled from the right passages, cited to the right papers, delivered in a single response. Built because flipping between twenty PDF tabs to find one finding is a waste of good thinking.
+Traditional search gives you a pile of documents to read. rag-api-for-research gives you answers. Pulled from the right passages, cited to the right papers, delivered in a single response. Built because flipping between twenty PDF tabs to find one finding is a waste of good thinking.
 
 ## Quick Start
 
@@ -81,8 +81,8 @@ curl -X GET http://localhost:8000/health \
 ## Contributing
 
 ```bash
-git clone https://github.com/your-org/corpuscompass
-cd corpuscompass
+git clone https://github.com/mhrafin/rag-api-for-research
+cd rag-api-for-research
 uv sync --locked
 uv run alembic upgrade head
 uv run fastapi dev
