@@ -1,12 +1,12 @@
 FROM python:3.12-slim-trixie
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-
-COPY . /code
+COPY --from=ghcr.io/astral-sh/uv:0.11.19 /uv /uvx /bin/
 
 WORKDIR /code
 
-# This uv sync does create .venv in the container. So we would either need to use uv run or set path for the .venv
+COPY pyproject.toml uv.lock ./
 RUN uv sync --locked
 
-CMD ["uv","run","fastapi", "run", "src/main.py", "--port", "8000"]
+COPY . .
+
+CMD ["uv", "run", "fastapi", "run", "src/main.py", "--port", "8000", "--host", "0.0.0.0"]
