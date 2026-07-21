@@ -3,7 +3,7 @@ from venv import logger
 
 from fastapi import Depends, FastAPI
 
-from src.routers import documents, health
+from src.routers import documents, health, queries
 
 from .auth import verify_api_key
 from .database import init_db
@@ -24,6 +24,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(health.router)
 app.include_router(documents.router)
+app.include_router(queries.router)
 
 
 @app.get("/")
