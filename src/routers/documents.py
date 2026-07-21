@@ -2,7 +2,6 @@ import os
 import shutil
 import uuid
 
-import tiktoken
 from fastapi import APIRouter, BackgroundTasks, Depends, UploadFile, logger
 from fastapi.responses import Response
 from kreuzberg import ExtractionConfig, extract_file
@@ -19,6 +18,7 @@ from src.config import get_settings
 from src.database import get_db
 from src.models import Chunk, Document
 from src.utils.embeddings import embed_text
+from src.utils.tokens import get_token_count
 
 settings = get_settings()
 
@@ -123,14 +123,11 @@ async def doc_process_pipeline(file_path: str, doc_id: int):
     # print(chunks[0])
     # print(chunks[1])
 
-    # We need this so that we can find the token count of a given text, It the same thing we used for splitting.
-    encoding = tiktoken.get_encoding("cl100k_base")
-
     doc_total_token = 0
 
     try:
         for index, chunk in enumerate(splitted_chunks):
-            token_count = len(encoding.encode(chunk))
+            token_count = get_token_count(chunk)
             doc_total_token += token_count
             new_chunk = Chunk(
                 document_id=doc.id,
