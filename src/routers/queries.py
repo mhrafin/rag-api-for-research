@@ -25,7 +25,7 @@ class QueryRequest(BaseModel):
 
 class Ref(BaseModel):
     reference: str
-    document_name: str
+    document_id: int
     chunk_index: int
     excerpt: str
 
@@ -47,10 +47,10 @@ async def queries(
     stmt = (
         select(
             Chunk.id,
-            # Chunk.document_id,
+            Chunk.document_id,
             Chunk.chunk_index,
             Chunk.content,
-            Document.source_reference.label("document_name"),
+            # Document.source_reference.label("document_name"),
             (1 - distance).label("similarity"),
         )
         .join(Document)
@@ -78,7 +78,7 @@ async def queries(
         context_string_token_count += new_token_count
 
         context_refs[context_label] = {
-            "document_name": row.document_name,
+            "document_id": row.document_id,
             "chunk_index": row.chunk_index,
             "content": row.content,
         }
@@ -139,7 +139,7 @@ async def queries(
             refs.append(
                 Ref(
                     reference=ref_match,
-                    document_name=data["document_name"],
+                    document_id=data["document_id"],
                     chunk_index=data["chunk_index"],
                     excerpt=excerpt,
                 )
