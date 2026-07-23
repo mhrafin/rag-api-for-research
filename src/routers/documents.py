@@ -2,7 +2,14 @@ import os
 import shutil
 import uuid
 
-from fastapi import APIRouter, BackgroundTasks, Depends, UploadFile, logger
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    UploadFile,
+    logger,
+)
 from fastapi.responses import Response
 from kreuzberg import ExtractionConfig, extract_file
 from langchain_text_splitters import (
@@ -180,3 +187,26 @@ async def extract_content(file_path: str):
     except Exception as e:
         logger.error("extract_content failed for %s: %s", file_path, e)
         raise
+
+
+class DocumentIDResponse(BaseModel):
+    id: int
+    source_type: str
+    source_reference: str
+    status: str
+    total_token: int
+    estimated_cost: float
+
+
+@router.get("/documents/{id}", response_model=DocumentIDResponse)
+async def documents_get(id: int, db: AsyncSession = Depends(get_db)):
+    stmt = select(Document).where(Document.id == id)
+
+    result = await db.execute(stmt)
+
+    doc = result.scalar()
+
+    if doc is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    return doc
